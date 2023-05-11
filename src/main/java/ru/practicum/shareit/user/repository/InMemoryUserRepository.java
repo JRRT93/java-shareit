@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.repository;
 
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.user.exceptions.EntityNotFoundException;
 import ru.practicum.shareit.user.exceptions.NotUniqueUserEmail;
 import ru.practicum.shareit.user.model.User;
 
@@ -28,8 +29,9 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
-    public Optional<User> findById(Long id) {
-        return Optional.ofNullable(userMap.get(id));
+    public User findById(Long id) throws EntityNotFoundException {
+        return Optional.ofNullable(userMap.get(id)).orElseThrow(
+                () -> new EntityNotFoundException(String.format("%s with id = %d does not exist in database", "User", id)));
     }
 
     @Override
@@ -47,7 +49,9 @@ public class InMemoryUserRepository implements UserRepository {
                 throw new NotUniqueUserEmail(String.format("User can't be updated. Email %s is already in use", user.getEmail()));
             }
         }
-        if (updatedName != null) userToUpdate.setName(updatedName);
+        if (updatedName != null) {
+            userToUpdate.setName(updatedName);
+        }
         return userToUpdate;
     }
 

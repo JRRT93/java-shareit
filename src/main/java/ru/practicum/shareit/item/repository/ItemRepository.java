@@ -1,14 +1,14 @@
 package ru.practicum.shareit.item.repository;
 
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.exceptions.EntityNotFoundException;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ItemRepository {
     Item save(Item item);
 
-    Optional<Item> findById(Long id);
+    Item findById(Long id) throws EntityNotFoundException;
 
     Item update(Item item);
 

@@ -15,7 +15,7 @@ import ru.practicum.shareit.user.exceptions.NotUniqueUserEmail;
 import ru.practicum.shareit.user.repository.InMemoryUserRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.services.UserService;
-import ru.practicum.shareit.user.services.UserServiceImpl1;
+import ru.practicum.shareit.user.services.UserServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ItemServiceImpl1Test {
+class ItemServiceImplTest {
     private UserRepository userRepository;
     private ItemRepository itemRepository;
     private UserService userService;
@@ -40,8 +40,8 @@ class ItemServiceImpl1Test {
     void createUsersAndItems() {
         userRepository = new InMemoryUserRepository();
         itemRepository = new InMemoryItemRepository();
-        userService = new UserServiceImpl1(userRepository);
-        itemService = new ItemServiceImpl1(itemRepository, userService);
+        userService = new UserServiceImpl(userRepository);
+        itemService = new ItemServiceImpl(itemRepository, userService);
 
         firstUserDto = new UserDto();
         firstUserDto.setName("Dim Yurich");

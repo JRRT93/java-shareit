@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserServiceImpl1 implements UserService {
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
@@ -31,8 +31,7 @@ public class UserServiceImpl1 implements UserService {
 
     @Override
     public UserDto findById(Long id) throws EntityNotFoundException {
-        User user = userRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException(String.format("%s with id = %d does not exist in database", "User", id)));
+        User user = userRepository.findById(id);
         log.debug(String.format("User with id = %d founded", user.getId()));
         return userMapper.modelToDto(user);
     }

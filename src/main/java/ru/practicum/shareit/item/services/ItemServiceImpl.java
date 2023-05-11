@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ItemServiceImpl1 implements ItemService {
+public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserService userService;
     private final ItemMapper itemMapper = Mappers.getMapper(ItemMapper.class);
@@ -36,8 +36,7 @@ public class ItemServiceImpl1 implements ItemService {
 
     @Override
     public ItemDto findById(Long id) throws EntityNotFoundException {
-        Item item = itemRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException(String.format("%s with id = %d does not exist in database", "Item", id)));
+        Item item = itemRepository.findById(id);
         log.debug(String.format("Item with id = %d founded", id));
         return itemMapper.modelToDto(item);
     }
@@ -45,8 +44,7 @@ public class ItemServiceImpl1 implements ItemService {
     @Override
     public ItemDto update(Long ownerId, Long itemId, ItemDto itemDto) throws EntityNotFoundException, WrongOwnerException {
         userService.findById(ownerId);
-        Item item = itemRepository.findById(itemId).orElseThrow(
-                () -> new EntityNotFoundException(String.format("%s with id = %d does not exist in database", "Item", itemId)));
+        Item item = itemRepository.findById(itemId);
         if (item.getOwnerId().longValue() == ownerId.longValue()) {
             itemDto.setId(itemId);
             log.debug("For DTO Entity ID initialized to provide UPDATE operation");
@@ -66,7 +64,9 @@ public class ItemServiceImpl1 implements ItemService {
 
     @Override
     public List<ItemDto> findByNameOrDescription(String text) {
-        if (text.isEmpty()) return new ArrayList<>();
+        if (text.isEmpty()) {
+            return new ArrayList<>();
+        }
         return itemRepository.findByNameOrDescription(text).stream()
                 .map(itemMapper::modelToDto)
                 .collect(Collectors.toList());

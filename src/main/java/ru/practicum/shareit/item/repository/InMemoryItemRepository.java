@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.repository;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.exceptions.EntityNotFoundException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,8 +26,9 @@ public class InMemoryItemRepository implements ItemRepository {
     }
 
     @Override
-    public Optional<Item> findById(Long id) {
-        return Optional.ofNullable(itemMap.get(id));
+    public Item findById(Long id) throws EntityNotFoundException {
+        return Optional.ofNullable(itemMap.get(id)).orElseThrow(
+                () -> new EntityNotFoundException(String.format("%s with id = %d does not exist in database", "Item", id)));
     }
 
     @Override
@@ -36,9 +38,15 @@ public class InMemoryItemRepository implements ItemRepository {
         String updatedDescription = item.getDescription();
         Boolean updatedAvailable = item.getAvailable();
 
-        if (updatedName != null) itemToUpdate.setName(updatedName);
-        if (updatedDescription != null) itemToUpdate.setDescription(updatedDescription);
-        if (updatedAvailable != null) itemToUpdate.setAvailable(updatedAvailable);
+        if (updatedName != null) {
+            itemToUpdate.setName(updatedName);
+        }
+        if (updatedDescription != null) {
+            itemToUpdate.setDescription(updatedDescription);
+        }
+        if (updatedAvailable != null) {
+            itemToUpdate.setAvailable(updatedAvailable);
+        }
 
         return itemToUpdate;
     }

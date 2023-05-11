@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Slf4j
-class UserServiceImpl1Test {
+class UserServiceImplTest {
     private UserRepository userRepository;
     private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
     private UserService userService;
@@ -28,7 +28,7 @@ class UserServiceImpl1Test {
     @BeforeEach
     void createUsers() {
         userRepository = new InMemoryUserRepository();
-        userService = new UserServiceImpl1(userRepository);
+        userService = new UserServiceImpl(userRepository);
 
         firstUserDto = new UserDto();
         firstUserDto.setName("Dim Yurich");
