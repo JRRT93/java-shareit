@@ -3,7 +3,10 @@ package ru.practicum.shareit.item.controllers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemOwnerDto;
+import ru.practicum.shareit.item.exceptions.CommentWithoutCompletedBooking;
 import ru.practicum.shareit.item.exceptions.WrongOwnerException;
 import ru.practicum.shareit.item.services.ItemService;
 import ru.practicum.shareit.user.exceptions.EntityNotFoundException;
@@ -26,9 +29,10 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto findById(@PathVariable Long itemId) throws EntityNotFoundException {
+    public ItemOwnerDto findById(@PathVariable Long itemId, @RequestHeader(xSharerUserId) Long userId)
+            throws EntityNotFoundException {
         log.info(String.format("GET request for /items/%d received", itemId));
-        return itemService.findById(itemId);
+        return itemService.findById(itemId, userId);
     }
 
     @PatchMapping("/{itemId}")
@@ -39,7 +43,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getAllUsersItems(@RequestHeader(xSharerUserId) Long ownerId) throws EntityNotFoundException {
+    public List<ItemOwnerDto> getAllUsersItems(@RequestHeader(xSharerUserId) Long ownerId) throws EntityNotFoundException {
         log.info(String.format("GET request for /items received from user id = %d", ownerId));
         return itemService.findAllMyItems(ownerId);
     }
@@ -48,5 +52,13 @@ public class ItemController {
     public List<ItemDto> findByNameOrDescription(@RequestParam(value = "text") String text) {
         log.info(String.format("GET request for /items received, text for search = %s", text));
         return itemService.findByNameOrDescription(text.toLowerCase());
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto saveComment(@RequestHeader(xSharerUserId) Long bookerId, @PathVariable Long itemId,
+                                  @Valid @RequestBody CommentDto commentDto) throws CommentWithoutCompletedBooking,
+            EntityNotFoundException {
+        log.info(String.format("POST request for /items/%d/comment received", itemId));
+        return itemService.saveComment(bookerId, itemId, commentDto);
     }
 }

@@ -1,6 +1,9 @@
 package ru.practicum.shareit.item.services;
 
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemOwnerDto;
+import ru.practicum.shareit.item.exceptions.CommentWithoutCompletedBooking;
 import ru.practicum.shareit.item.exceptions.WrongOwnerException;
 import ru.practicum.shareit.user.exceptions.EntityNotFoundException;
 
@@ -11,9 +14,12 @@ public interface ItemService {
 
     ItemDto update(Long ownerId, Long itemId, ItemDto itemDto) throws EntityNotFoundException, WrongOwnerException;
 
-    ItemDto findById(Long id) throws EntityNotFoundException;
+    ItemOwnerDto findById(Long id, Long userId) throws EntityNotFoundException;
 
-    List<ItemDto> findAllMyItems(Long ownerId) throws EntityNotFoundException;
+    List<ItemOwnerDto> findAllMyItems(Long ownerId) throws EntityNotFoundException;
 
     List<ItemDto> findByNameOrDescription(String text);
+
+    CommentDto saveComment(Long bookerId, Long itemId, CommentDto commentDto) throws EntityNotFoundException,
+            CommentWithoutCompletedBooking;
 }
