@@ -17,7 +17,7 @@ public class ItemExceptionHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> CommentWithoutCompletedBooking(final CommentWithoutCompletedBooking e) {
+    public Map<String, String> commentWithoutCompletedBooking(final CommentWithoutCompletedBooking e) {
         return Map.of("Incorrect data", e.getMessage());
     }
 }
