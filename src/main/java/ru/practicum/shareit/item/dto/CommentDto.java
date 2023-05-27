@@ -4,14 +4,14 @@ import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 @Data
-public class ItemDto {
+public class CommentDto {
     private Long id;
     @NotEmpty
-    private String name;
-    @NotEmpty
-    private String description;
     @NotNull
-    private Boolean available;
+    private String text;
+    private String authorName;
+    private LocalDateTime created;
 }

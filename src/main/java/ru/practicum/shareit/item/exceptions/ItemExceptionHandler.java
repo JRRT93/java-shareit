@@ -14,4 +14,10 @@ public class ItemExceptionHandler {
     public Map<String, String> handleWrongOwner(final WrongOwnerException e) {
         return Map.of("Incorrect data", e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> CommentWithoutCompletedBooking(final CommentWithoutCompletedBooking e) {
+        return Map.of("Incorrect data", e.getMessage());
+    }
 }
