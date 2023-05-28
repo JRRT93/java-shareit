@@ -2,7 +2,6 @@ package ru.practicum.shareit.booking.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoComplete;
@@ -33,8 +32,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
-    private final BookingMapper bookingMapper = Mappers.getMapper(BookingMapper.class);
-    private final BookingMapperComplete bookingMapperComplete = Mappers.getMapper(BookingMapperComplete.class);
+    private final BookingMapper bookingMapper;
+    private final BookingMapperComplete bookingMapperComplete;
     private final UserJpaRepository userRepository;
     private final ItemJpaRepository itemRepository;
 

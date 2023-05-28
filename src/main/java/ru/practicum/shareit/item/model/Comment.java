@@ -1,12 +1,14 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "comments")
 public class Comment {
@@ -14,14 +16,14 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_id")
     private Long id;
-    @Column(name = "text", nullable = false)
+    @Column(nullable = false)
     private String text;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "item_id")
+    @ManyToOne
+    @JoinColumn(name = "item_id", nullable = false)
     private Item item;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "author_id")
+    @ManyToOne
+    @JoinColumn(name = "author_id", nullable = false)
     private User author;
-    @Column(name = "creation_date")
+    @Column(name = "creation_date", nullable = false)
     private LocalDateTime creationDate;
 }

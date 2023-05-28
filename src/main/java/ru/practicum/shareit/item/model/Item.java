@@ -1,10 +1,12 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "items")
 public class Item {
@@ -14,10 +16,9 @@ public class Item {
     private Long id;
     @Column(name = "item_name", nullable = false)
     private String name;
-    @Column(name = "description")
     private String description;
-    @Column(name = "available")
+    @Column(nullable = false)
     private Boolean available;
-    @Column(name = "owner_id")
+    @Column(nullable = false)
     private Long ownerId;
 }

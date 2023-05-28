@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingMapperForItems;
 import ru.practicum.shareit.booking.model.Booking;
@@ -35,10 +34,10 @@ public class ItemServiceImpl implements ItemService {
     private final UserJpaRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentJpaRepository commentRepository;
-    private final ItemMapper itemMapper = Mappers.getMapper(ItemMapper.class);
-    private final ItemOwnerDtoMapper itemOwnerMapper = Mappers.getMapper(ItemOwnerDtoMapper.class);
-    private final BookingMapperForItems bookingMapperForItems = Mappers.getMapper(BookingMapperForItems.class);
-    private final CommentDtoMapper commentMapper = Mappers.getMapper(CommentDtoMapper.class);
+    private final ItemMapper itemMapper;
+    private final ItemOwnerDtoMapper itemOwnerMapper;
+    private final BookingMapperForItems bookingMapperForItems;
+    private final CommentDtoMapper commentMapper;
 
     @Override
     public ItemDto save(Long ownerId, ItemDto itemDto) throws EntityNotFoundException {

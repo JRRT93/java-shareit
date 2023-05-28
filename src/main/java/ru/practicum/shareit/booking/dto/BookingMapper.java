@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.practicum.shareit.booking.model.Booking;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface BookingMapper {
     @Mapping(target = "start", source = "bookingDto.start")
     @Mapping(target = "end", source = "bookingDto.end")

@@ -1,12 +1,14 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 public class CommentDto {
     private Long id;
     @NotEmpty

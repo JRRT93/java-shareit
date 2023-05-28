@@ -2,14 +2,12 @@ package ru.practicum.shareit.user.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.exceptions.EntityNotFoundException;
 import ru.practicum.shareit.user.exceptions.NotUniqueUserEmail;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.InMemoryUserRepository;
 import ru.practicum.shareit.user.repository.UserJpaRepository;
 
 import java.util.List;
@@ -21,8 +19,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserServiceImpl implements UserService {
     private final UserJpaRepository userRepository;
-    private final InMemoryUserRepository inMemoryUserRepository;
-    private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+    private final UserMapper userMapper;
 
     @Override
     public UserDto save(UserDto userDto) throws NotUniqueUserEmail {

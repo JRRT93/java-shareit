@@ -1,13 +1,15 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import ru.practicum.shareit.booking.dto.BookingDtoForItems;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
-@Data
+@Getter
+@Setter
 public class ItemOwnerDto {
     private Long id;
     @NotEmpty

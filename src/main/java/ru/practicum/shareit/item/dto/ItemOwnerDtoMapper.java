@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.practicum.shareit.item.model.Item;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface ItemOwnerDtoMapper {
     @Mapping(target = "id", source = "itemOwnerDto.id")
     @Mapping(target = "name", source = "itemOwnerDto.name")

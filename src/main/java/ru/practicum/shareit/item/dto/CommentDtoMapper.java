@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.practicum.shareit.item.model.Comment;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface CommentDtoMapper {
     @Mapping(target = "text", source = "commentDto.text")
     Comment dtoToModel(CommentDto commentDto);

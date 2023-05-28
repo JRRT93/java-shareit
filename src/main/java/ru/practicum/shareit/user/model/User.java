@@ -1,10 +1,12 @@
 package ru.practicum.shareit.user.model;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "users")
 public class User {
@@ -14,6 +16,6 @@ public class User {
     private Long id;
     @Column(name = "user_name", nullable = false)
     private String name;
-    @Column(name = "email", unique = true, nullable = false)
+    @Column(unique = true, nullable = false)
     private String email;
 }
