@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.practicum.shareit.user.model.User;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface UserMapper {
     @Mapping(target = "id", source = "userDto.id")
     @Mapping(target = "name", source = "userDto.name")
