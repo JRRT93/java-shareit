@@ -2,6 +2,8 @@ package ru.practicum.shareit.item.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingMapperForItems;
 import ru.practicum.shareit.booking.model.Booking;
@@ -41,7 +43,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto save(Long ownerId, ItemDto itemDto) throws EntityNotFoundException {
-        userService.findById(ownerId);
+        User owner = userRepository.findById(ownerId).orElseThrow(
+                () -> new EntityNotFoundException(String.format("%s with id = %d does not exist in database", "User", ownerId)));
         Item item = itemMapper.dtoToModel(itemDto);
         item.setOwnerId(ownerId);
         itemRepository.save(item);
@@ -90,23 +93,24 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto update(Long ownerId, Long itemId, ItemDto itemDto) throws
             EntityNotFoundException, WrongOwnerException {
-        userService.findById(ownerId);
+        User owner = userRepository.findById(ownerId).orElseThrow(
+                () -> new EntityNotFoundException(String.format("%s with id = %d does not exist in database", "User", ownerId)));
         Item itemToUpdate = itemRepository.findById(itemId).orElseThrow(() ->
                 new EntityNotFoundException(String.format("%s with id = %d does not exist in database", "Item", itemId)));
-        String updatedName = itemDto.getName();
-        String updatedDescription = itemDto.getDescription();
-        Boolean updatedAvailable = itemDto.getAvailable();
-        if (updatedName != null) {
-            itemToUpdate.setName(updatedName);
-        }
-        if (updatedDescription != null) {
-            itemToUpdate.setDescription(updatedDescription);
-        }
-        if (updatedAvailable != null) {
-            itemToUpdate.setAvailable(updatedAvailable);
-        }
 
         if (itemToUpdate.getOwnerId().longValue() == ownerId.longValue()) {
+            String updatedName = itemDto.getName();
+            String updatedDescription = itemDto.getDescription();
+            Boolean updatedAvailable = itemDto.getAvailable();
+            if (updatedName != null) {
+                itemToUpdate.setName(updatedName);
+            }
+            if (updatedDescription != null) {
+                itemToUpdate.setDescription(updatedDescription);
+            }
+            if (updatedAvailable != null) {
+                itemToUpdate.setAvailable(updatedAvailable);
+            }
             log.debug("For DTO Entity ID initialized to provide UPDATE operation");
             Item updatedItem = itemRepository.save(itemToUpdate);
             log.debug(String.format("Item with id = %d updated", itemId));
@@ -140,13 +144,21 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemOwnerDto> findAllMyItems(Long ownerId) throws EntityNotFoundException {
+    public List<ItemOwnerDto> findAllMyItems(Long ownerId, Integer startingEntry, Integer size) throws EntityNotFoundException {
         userService.findById(ownerId);
         LocalDateTime now = LocalDateTime.now();
         Collection<Booking> bookingList = bookingRepository.findAllByItemOwnerIdOrderByStartDesc(ownerId);
-        List<ItemOwnerDto> itemOwnerDtoList = itemRepository.findByOwnerIdOrderByIdAsc(ownerId).stream()
-                .map(itemOwnerMapper::modelToDto)
-                .collect(Collectors.toList());
+        List<ItemOwnerDto> itemOwnerDtoList;
+        if (startingEntry != null && size != null) {
+            Pageable pageRequest = PageRequest.of(startingEntry / size, size);
+            itemOwnerDtoList = itemRepository.findByOwnerIdOrderByIdAsc(ownerId, pageRequest).stream()
+                    .map(itemOwnerMapper::modelToDto)
+                    .collect(Collectors.toList());
+        } else {
+            itemOwnerDtoList = itemRepository.findByOwnerIdOrderByIdAsc(ownerId).stream()
+                    .map(itemOwnerMapper::modelToDto)
+                    .collect(Collectors.toList());
+        }
         Collection<Comment> comments = commentRepository.findAllByItemOwnerIdOrderByIdAsc(ownerId);
         for (ItemOwnerDto item : itemOwnerDtoList) {
             Booking lastBooking = null;
@@ -180,13 +192,25 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> findByNameOrDescription(String text) {
+    public List<ItemDto> findByNameOrDescription(String text, Integer startingEntry, Integer size) {
         boolean isAvailable = true;
         if (text.isEmpty()) {
             return new ArrayList<>();
         }
-        return itemRepository.findByNameOrDescriptionContainsIgnoreCaseAndAvailable(text, text, isAvailable).stream()
-                .map(itemMapper::modelToDto)
-                .collect(Collectors.toList());
+        List<ItemDto> itemList;
+        if (startingEntry != null && size != null) {
+            Pageable pageRequest = PageRequest.of(startingEntry / size, size);
+            itemList = itemRepository.findByNameOrDescriptionContainsIgnoreCaseAndAvailable(text, text, isAvailable, pageRequest)
+                    .stream()
+                    .map(itemMapper::modelToDto)
+                    .collect(Collectors.toList());
+        } else {
+            itemList = itemRepository.findByNameOrDescriptionContainsIgnoreCaseAndAvailable(text, text, isAvailable)
+                    .stream()
+                    .map(itemMapper::modelToDto)
+                    .collect(Collectors.toList());
+        }
+
+        return itemList;
     }
 }

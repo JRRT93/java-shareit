@@ -22,9 +22,9 @@ public interface BookingService {
 
     BookingDtoComplete findById(Long userId, Long bookingId) throws EntityNotFoundException, WrongOwnerException;
 
-    Collection<BookingDtoComplete> findAllUsersBookingsByState(Long bookerId, State state)
+    Collection<BookingDtoComplete> findAllUsersBookingsByState(Long bookerId, State state, Integer startingEntry, Integer size)
             throws EntityNotFoundException;
 
-    Collection<BookingDtoComplete> findAllOwnersBookingsByState(Long ownerId, State state)
+    Collection<BookingDtoComplete> findAllOwnersBookingsByState(Long ownerId, State state, Integer startingEntry, Integer size)
             throws EntityNotFoundException;
 }

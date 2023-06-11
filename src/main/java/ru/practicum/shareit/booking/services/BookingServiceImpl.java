@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoComplete;
@@ -105,65 +107,130 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    public Collection<BookingDtoComplete> findAllUsersBookingsByState(Long bookerId, State state)
+    public Collection<BookingDtoComplete> findAllUsersBookingsByState(Long bookerId, State state, Integer startingEntry,
+                                                                      Integer size)
             throws EntityNotFoundException {
         User booker = userRepository.findById(bookerId).orElseThrow(
                 () -> new EntityNotFoundException(String.format("%s with id = %d does not exist in database",
                         "User", bookerId)));
         LocalDateTime now = LocalDateTime.now();
-        switch (state) {
-            case PAST:
-                return bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId, now)
-                        .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
-            case CURRENT:
-                return bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId, now, now)
-                        .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
-            case FUTURE:
-                return bookingRepository.findAllByBookerIdAndStartAfterAndStatusNotOrderByStartDesc(bookerId, now,
-                                Status.REJECTED)
-                        .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
-            case WAITING:
-                return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, Status.WAITING)
-                        .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
-            case REJECTED:
-                return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, Status.REJECTED)
-                        .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
-            case ALL:
-                return bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId)
-                        .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
-            default:
-                return null;
+        if (startingEntry != null && size != null) {
+            Pageable pageRequest = PageRequest.of(startingEntry / size, size);
+            switch (state) {
+                case PAST:
+                    return bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId, now, pageRequest)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case CURRENT:
+                    return bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId, now,
+                                    now, pageRequest)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case FUTURE:
+                    return bookingRepository.findAllByBookerIdAndStartAfterAndStatusNotOrderByStartDesc(bookerId, now,
+                                    Status.REJECTED, pageRequest)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case WAITING:
+                    return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, Status.WAITING,
+                                    pageRequest)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case REJECTED:
+                    return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, Status.REJECTED,
+                                    pageRequest)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case ALL:
+                    return bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId, pageRequest)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                default:
+                    return null;
+            }
+        } else {
+            switch (state) {
+                case PAST:
+                    return bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId, now)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case CURRENT:
+                    return bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId, now,
+                                    now)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case FUTURE:
+                    return bookingRepository.findAllByBookerIdAndStartAfterAndStatusNotOrderByStartDesc(bookerId, now,
+                                    Status.REJECTED)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case WAITING:
+                    return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, Status.WAITING)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case REJECTED:
+                    return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, Status.REJECTED)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case ALL:
+                    return bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                default:
+                    return null;
+            }
         }
+
     }
 
-    public Collection<BookingDtoComplete> findAllOwnersBookingsByState(Long ownerId, State state)
+    public Collection<BookingDtoComplete> findAllOwnersBookingsByState(Long ownerId, State state, Integer startingEntry,
+                                                                       Integer size)
             throws EntityNotFoundException {
         User owner = userRepository.findById(ownerId).orElseThrow(
                 () -> new EntityNotFoundException(String.format("%s with id = %d does not exist in database", "User",
                         ownerId)));
         LocalDateTime now = LocalDateTime.now();
-        switch (state) {
-            case PAST:
-                return bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, now)
-                        .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
-            case CURRENT:
-                return bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId, now, now)
-                        .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
-            case FUTURE:
-                return bookingRepository.findAllByItemOwnerIdAndStartAfterAndStatusNotOrderByStartDesc(ownerId, now,
-                                Status.REJECTED)
-                        .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
-            case WAITING:
-                return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, Status.WAITING)
-                        .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
-            case REJECTED:
-                return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, Status.REJECTED)
-                        .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
-            case ALL:
-                return bookingRepository.findAllByItemOwnerIdOrderByStartDesc(ownerId)
-                        .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
-            default:
-                return null;
+        if (startingEntry != null && size != null) {
+            Pageable pageRequest = PageRequest.of(startingEntry / size, size);
+            switch (state) {
+                case PAST:
+                    return bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, now, pageRequest)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case CURRENT:
+                    return bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId,
+                                    now, now, pageRequest)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case FUTURE:
+                    return bookingRepository.findAllByItemOwnerIdAndStartAfterAndStatusNotOrderByStartDesc(ownerId,
+                                    now, Status.REJECTED, pageRequest)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case WAITING:
+                    return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, Status.WAITING,
+                                    pageRequest)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case REJECTED:
+                    return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, Status.REJECTED,
+                                    pageRequest)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case ALL:
+                    return bookingRepository.findAllByItemOwnerIdOrderByStartDesc(ownerId, pageRequest)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                default:
+                    return null;
+            }
+        } else {
+            switch (state) {
+                case PAST:
+                    return bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, now)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case CURRENT:
+                    return bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId,
+                                    now, now)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case FUTURE:
+                    return bookingRepository.findAllByItemOwnerIdAndStartAfterAndStatusNotOrderByStartDesc(ownerId,
+                                    now, Status.REJECTED)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case WAITING:
+                    return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, Status.WAITING)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case REJECTED:
+                    return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, Status.REJECTED)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                case ALL:
+                    return bookingRepository.findAllByItemOwnerIdOrderByStartDesc(ownerId)
+                            .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
+                default:
+                    return null;
+            }
         }
     }
 
