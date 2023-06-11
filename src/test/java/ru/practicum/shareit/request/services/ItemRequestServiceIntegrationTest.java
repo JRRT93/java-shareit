@@ -56,7 +56,24 @@ class ItemRequestServiceIntegrationTest {
 
     @Test
     void findTheirItemRequestShouldThrow() {
-        assertThrows(EntityNotFoundException.class, () -> itemRequestService.findMyItemRequests(99L));
+        assertThrows(EntityNotFoundException.class,
+                () -> itemRequestService.findTheirItemRequest(99L, null, null));
+    }
+
+    @Test
+    void findMyItemRequest() throws EntityNotFoundException {
+        List<ItemRequestDto> requests = new ArrayList<>(itemRequestService.findMyItemRequests(2L));
+        List<Long> requestsId = requests.stream().map(ItemRequestDto::getId).collect(Collectors.toList());
+
+        assertEquals(1, requests.size());
+        assertTrue(requestsId.contains(1L));
+
+        assertTrue(requests.get(0).getCreated() != null
+                && requests.get(0).getCreated().isBefore(LocalDateTime.now()));
+        assertEquals("Хачю пиццу", requests.get(0).getDescription());
+        assertEquals(1L, requests.get(0).getId());
+        assertEquals(2L, requests.get(0).getAuthor().getId());
+        assertEquals(1, requests.get(0).getItems().size());
     }
 
     @Test
@@ -123,6 +140,11 @@ class ItemRequestServiceIntegrationTest {
         ItemRequestDto itemRequestDto3 = new ItemRequestDto();
         itemRequestDto3.setDescription("Люстрации");
         itemRequestService.save(2L, itemRequestDto1);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         itemRequestService.save(3L, itemRequestDto2);
         try {
             Thread.sleep(1000);

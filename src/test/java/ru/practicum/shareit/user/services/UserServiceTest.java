@@ -213,6 +213,8 @@ class UserServiceTest {
                 .when(userJpaRepository.findAll())
                 .thenReturn(new ArrayList<>());
 
+        userMapper.modelToDto(null);
+        userMapper.dtoToModel(null);
         userService.findAll();
 
         Mockito.verify(userJpaRepository, Mockito.times(1)).findAll();

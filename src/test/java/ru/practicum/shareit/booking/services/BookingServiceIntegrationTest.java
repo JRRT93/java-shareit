@@ -178,6 +178,40 @@ class BookingServiceIntegrationTest {
     }
 
     @Test
+    void pastFindAllUsersBookingsByPagination() throws EntityNotFoundException {
+        List<BookingDtoComplete> bookings = new ArrayList<>(
+                bookingService.findAllUsersBookingsByState(2L, State.PAST, 0, 1));
+        List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
+
+        assertEquals(1, bookings.size());
+        assertTrue(bookingsId.contains(1L));
+
+        assertEquals(LocalDateTime.of(2000, 1, 1, 1, 1, 1, 1),
+                bookings.get(0).getStart());
+        assertEquals(LocalDateTime.of(2001, 1, 1, 1, 1, 1, 1),
+                bookings.get(0).getEnd());
+        assertEquals(1L, bookings.get(0).getItem().getId());
+        assertEquals(Status.APPROVED, bookings.get(0).getStatus());
+    }
+
+    @Test
+    void currentFindAllUsersBookingsByPagination() throws EntityNotFoundException {
+        List<BookingDtoComplete> bookings = new ArrayList<>(
+                bookingService.findAllUsersBookingsByState(3L, State.CURRENT, 0, 1));
+        List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
+
+        assertEquals(1, bookings.size());
+        assertTrue(bookingsId.contains(6L));
+
+        assertEquals(LocalDateTime.of(2022, 1, 1, 1, 1, 1, 1),
+                bookings.get(0).getStart());
+        assertEquals(LocalDateTime.of(2039, 1, 1, 1, 1, 1, 1),
+                bookings.get(0).getEnd());
+        assertEquals(2L, bookings.get(0).getItem().getId());
+        assertEquals(Status.APPROVED, bookings.get(0).getStatus());
+    }
+
+    @Test
     void futureFindAllUsersBookingsByPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
                 bookingService.findAllUsersBookingsByState(3L, State.FUTURE, 1, 1));
@@ -192,6 +226,40 @@ class BookingServiceIntegrationTest {
                 bookings.get(0).getEnd());
         assertEquals(1L, bookings.get(0).getItem().getId());
         assertEquals(Status.APPROVED, bookings.get(0).getStatus());
+    }
+
+    @Test
+    void waitingFindAllUsersBookingsByPagination() throws EntityNotFoundException {
+        List<BookingDtoComplete> bookings = new ArrayList<>(
+                bookingService.findAllUsersBookingsByState(2L, State.WAITING, 0, 1));
+        List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
+
+        assertEquals(1, bookings.size());
+        assertTrue(bookingsId.contains(2L));
+
+        assertEquals(LocalDateTime.of(2024, 1, 1, 1, 1, 1, 1),
+                bookings.get(0).getStart());
+        assertEquals(LocalDateTime.of(2025, 1, 1, 1, 1, 1, 1),
+                bookings.get(0).getEnd());
+        assertEquals(1L, bookings.get(0).getItem().getId());
+        assertEquals(Status.WAITING, bookings.get(0).getStatus());
+    }
+
+    @Test
+    void rejectedFindAllUsersBookingsByPagination() throws EntityNotFoundException {
+        List<BookingDtoComplete> bookings = new ArrayList<>(
+                bookingService.findAllUsersBookingsByState(2L, State.REJECTED, 0, 1));
+        List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
+
+        assertEquals(1, bookings.size());
+        assertTrue(bookingsId.contains(3L));
+
+        assertEquals(LocalDateTime.of(2030, 1, 1, 1, 1, 1, 1),
+                bookings.get(0).getStart());
+        assertEquals(LocalDateTime.of(2031, 1, 1, 1, 1, 1, 1),
+                bookings.get(0).getEnd());
+        assertEquals(1L, bookings.get(0).getItem().getId());
+        assertEquals(Status.REJECTED, bookings.get(0).getStatus());
     }
 
     @Test
@@ -383,6 +451,115 @@ class BookingServiceIntegrationTest {
                 bookings.get(0).getEnd());
         assertEquals(2L, bookings.get(0).getItem().getId());
         assertEquals(Status.WAITING, bookings.get(0).getStatus());
+    }
+
+    @Test
+    void pastFindAllOwnersBookingsByPagination() throws EntityNotFoundException {
+        List<BookingDtoComplete> bookings = new ArrayList<>(
+                bookingService.findAllOwnersBookingsByState(1L, State.PAST, 0, 1));
+        List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
+
+        assertEquals(1, bookings.size());
+        assertTrue(bookingsId.contains(1L));
+
+        assertEquals(LocalDateTime.of(2000, 1, 1, 1, 1, 1, 1),
+                bookings.get(0).getStart());
+        assertEquals(LocalDateTime.of(2001, 1, 1, 1, 1, 1, 1),
+                bookings.get(0).getEnd());
+        assertEquals(1L, bookings.get(0).getItem().getId());
+        assertEquals(Status.APPROVED, bookings.get(0).getStatus());
+    }
+
+    @Test
+    void currentFindAllOwnersBookingsByPagination() throws EntityNotFoundException {
+        List<BookingDtoComplete> bookings = new ArrayList<>(
+                bookingService.findAllOwnersBookingsByState(1L, State.CURRENT, 0, 1));
+        List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
+
+        assertEquals(1, bookings.size());
+        assertTrue(bookingsId.contains(6L));
+
+        assertEquals(LocalDateTime.of(2022, 1, 1, 1, 1, 1, 1),
+                bookings.get(0).getStart());
+        assertEquals(LocalDateTime.of(2039, 1, 1, 1, 1, 1, 1),
+                bookings.get(0).getEnd());
+        assertEquals(2L, bookings.get(0).getItem().getId());
+        assertEquals(Status.APPROVED, bookings.get(0).getStatus());
+    }
+
+    @Test
+    void futureFindAllOwnersBookingsByPagination() throws EntityNotFoundException {
+        List<BookingDtoComplete> bookings = new ArrayList<>(
+                bookingService.findAllOwnersBookingsByState(1L, State.FUTURE, 0, 3));
+        List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
+
+        assertEquals(3, bookings.size());
+        assertTrue(bookingsId.contains(5L));
+        assertTrue(bookingsId.contains(4L));
+        assertTrue(bookingsId.contains(2L));
+
+        assertEquals(LocalDateTime.of(2035, 1, 1, 1, 1, 1, 1),
+                bookings.get(0).getStart());
+        assertEquals(LocalDateTime.of(2040, 1, 1, 1, 1, 1, 1),
+                bookings.get(0).getEnd());
+        assertEquals(2L, bookings.get(0).getItem().getId());
+        assertEquals(Status.WAITING, bookings.get(0).getStatus());
+
+        assertEquals(LocalDateTime.of(2029, 1, 1, 1, 1, 1, 1),
+                bookings.get(1).getStart());
+        assertEquals(LocalDateTime.of(2032, 1, 1, 1, 1, 1, 1),
+                bookings.get(1).getEnd());
+        assertEquals(1L, bookings.get(1).getItem().getId());
+        assertEquals(Status.APPROVED, bookings.get(1).getStatus());
+
+        assertEquals(LocalDateTime.of(2024, 1, 1, 1, 1, 1, 1),
+                bookings.get(2).getStart());
+        assertEquals(LocalDateTime.of(2025, 1, 1, 1, 1, 1, 1),
+                bookings.get(2).getEnd());
+        assertEquals(1L, bookings.get(2).getItem().getId());
+        assertEquals(Status.WAITING, bookings.get(2).getStatus());
+    }
+
+    @Test
+    void waitingFindAllOwnersBookingsByPagination() throws EntityNotFoundException {
+        List<BookingDtoComplete> bookings = new ArrayList<>(
+                bookingService.findAllOwnersBookingsByState(1L, State.WAITING, 0, 2));
+        List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
+
+        assertEquals(2, bookings.size());
+        assertTrue(bookingsId.contains(2L));
+        assertTrue(bookingsId.contains(5L));
+
+        assertEquals(LocalDateTime.of(2035, 1, 1, 1, 1, 1, 1),
+                bookings.get(0).getStart());
+        assertEquals(LocalDateTime.of(2040, 1, 1, 1, 1, 1, 1),
+                bookings.get(0).getEnd());
+        assertEquals(2L, bookings.get(0).getItem().getId());
+        assertEquals(Status.WAITING, bookings.get(0).getStatus());
+
+        assertEquals(LocalDateTime.of(2024, 1, 1, 1, 1, 1, 1),
+                bookings.get(1).getStart());
+        assertEquals(LocalDateTime.of(2025, 1, 1, 1, 1, 1, 1),
+                bookings.get(1).getEnd());
+        assertEquals(1L, bookings.get(1).getItem().getId());
+        assertEquals(Status.WAITING, bookings.get(1).getStatus());
+    }
+
+    @Test
+    void rejectedFindAllOwnersBookingsByPagination() throws EntityNotFoundException {
+        List<BookingDtoComplete> bookings = new ArrayList<>(
+                bookingService.findAllOwnersBookingsByState(1L, State.REJECTED, 0, 1));
+        List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
+
+        assertEquals(1, bookings.size());
+        assertTrue(bookingsId.contains(3L));
+
+        assertEquals(LocalDateTime.of(2030, 1, 1, 1, 1, 1, 1),
+                bookings.get(0).getStart());
+        assertEquals(LocalDateTime.of(2031, 1, 1, 1, 1, 1, 1),
+                bookings.get(0).getEnd());
+        assertEquals(1L, bookings.get(0).getItem().getId());
+        assertEquals(Status.REJECTED, bookings.get(0).getStatus());
     }
 
     @Test

@@ -2,14 +2,12 @@ package ru.practicum.shareit.booking.services;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingDtoComplete;
-import ru.practicum.shareit.booking.dto.BookingMapper;
-import ru.practicum.shareit.booking.dto.BookingMapperComplete;
+import ru.practicum.shareit.booking.dto.*;
 import ru.practicum.shareit.booking.exceptions.BookerAndOwnerAreSameUser;
 import ru.practicum.shareit.booking.exceptions.IncorrectBookingStartEndDate;
 import ru.practicum.shareit.booking.exceptions.ItemNotAvailableException;
@@ -99,6 +97,15 @@ class BookingServiceTest {
                 .thenReturn(Optional.ofNullable(item));
 
         assertThrows(BookerAndOwnerAreSameUser.class, () -> bookingService.save(2L, bookingDto));
+    }
+
+    @Test
+    void saveShouldThrowEntityNotFound() {
+        Mockito
+                .when(itemRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> bookingService.save(2L, bookingDto));
     }
 
     @Test
@@ -199,11 +206,28 @@ class BookingServiceTest {
     }
 
     @Test
+    void confirmBookingByWrongOwnerShouldThrowNotFound() {
+        Mockito
+                .when(bookingRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> bookingService.confirmBooking(1L, 1L, true));
+    }
+
+    @Test
     void findByIdShouldThrow() {
         Mockito
                 .when(bookingRepository.findById(99L))
                 .thenReturn(Optional.empty());
         assertThrows(EntityNotFoundException.class, () -> bookingService.findById(1L, 99L));
+    }
+
+    @Test
+    void findByIdShouldTGiveBookingCompleteDto() throws WrongOwnerException, EntityNotFoundException {
+        Mockito
+                .when(bookingRepository.findById(1L))
+                .thenReturn(Optional.ofNullable(booking));
+        BookingDtoComplete bookingDtoComplete = bookingService.findById(2L, 1L);
     }
 
     @Test
@@ -213,5 +237,22 @@ class BookingServiceTest {
                 .thenReturn(Optional.ofNullable(booking));
 
         assertThrows(WrongOwnerException.class, () -> bookingService.findById(3L, 1L));
+    }
+
+    @Test
+    void dtoToNullAndBack() {
+        bookingMapper.modelToDto(booking);
+        bookingMapper.modelToDto(null);
+        bookingMapper.dtoToModel(null);
+        BookingMapperForItems bm = Mappers.getMapper(BookingMapperForItems.class);
+        bm.modelToDto(null);
+        bm.dtoToModel(null);
+        BookingDtoForItems bi = new BookingDtoForItems();
+        bm.dtoToModel(bi);
+        BookingMapperComplete bc = Mappers.getMapper(BookingMapperComplete.class);
+        bc.modelToDto(null);
+        bc.dtoToModel(null);
+        BookingDtoComplete bcc = new BookingDtoComplete();
+        bc.dtoToModel(bcc);
     }
 }

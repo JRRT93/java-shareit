@@ -12,6 +12,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemOwnerDto;
+import ru.practicum.shareit.item.exceptions.CommentWithoutCompletedBooking;
+import ru.practicum.shareit.item.exceptions.WrongOwnerException;
 import ru.practicum.shareit.item.services.ItemService;
 
 import java.util.ArrayList;
@@ -27,10 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @WebMvcTest(controllers = ItemController.class)
 class ItemControllerTest {
-
     @Autowired
     MockMvc mockMvc;
-
     @MockBean
     ItemService itemService;
 
@@ -91,6 +91,19 @@ class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.name", is("Updated Item")));
+    }
+
+    @Test
+    public void testUpdateItemShouldThrow() throws Exception {
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Updated Item");
+        when(itemService.update(anyLong(), anyLong(), any(ItemDto.class))).thenThrow(new WrongOwnerException("error"));
+
+        mockMvc.perform(patch("/items/{itemId}", 1L)
+                        .header("X-Sharer-User-Id", 199)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(itemDto)))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -163,6 +176,21 @@ class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.text", is("Test comment")));
+    }
+
+    @Test
+    public void testSaveCommentShouldThrow() throws Exception {
+        CommentDto commentDto = new CommentDto();
+        commentDto.setText("Test comment");
+
+        when(itemService.saveComment(anyLong(), anyLong(), any(CommentDto.class)))
+                .thenThrow(new CommentWithoutCompletedBooking("error"));
+
+        mockMvc.perform(post("/items/{itemId}/comment", 1L)
+                        .header("X-Sharer-User-Id", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(commentDto)))
+                .andExpect(status().isBadRequest());
     }
 
     private static String asJsonString(Object obj) throws JsonProcessingException {

@@ -10,6 +10,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.exceptions.EntityNotFoundException;
+import ru.practicum.shareit.user.exceptions.NotUniqueUserEmail;
 import ru.practicum.shareit.user.services.UserService;
 
 import java.util.Arrays;
@@ -52,6 +54,44 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.name", is("Test User")));
 
         verify(userService, times(1)).save(any(UserDto.class));
+    }
+
+    @Test
+    public void testSaveShouldThrowEmail() throws Exception {
+        UserDto userDto = new UserDto();
+        userDto.setEmail("test@example.com");
+        userDto.setName("Test User");
+
+        when(userService.save(any(UserDto.class))).thenThrow(new NotUniqueUserEmail("error"));
+
+        mockMvc.perform(post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(userDto)))
+                .andExpect(status().isConflict());
+        verify(userService, times(1)).save(any(UserDto.class));
+    }
+
+    @Test
+    public void testSaveShouldThrowValidation() throws Exception {
+        UserDto userDto = new UserDto();
+        userDto.setEmail(null);
+        userDto.setName("Test User");
+
+        mockMvc.perform(post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(userDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    public void testFindByIdShouldThrowNotFound() throws Exception {
+        when(userService.findById(any(Long.class))).thenThrow(new EntityNotFoundException("error"));
+
+        mockMvc.perform(get("/users/99"))
+                .andExpect(status().isNotFound());
+
+        verify(userService, times(1)).findById(any(Long.class));
     }
 
     @Test

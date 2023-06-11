@@ -460,5 +460,11 @@ class ItemServiceTest {
 
         assertNotNull(savedComment.getCreated());
         assertEquals("TestUser", savedComment.getAuthorName());
+        commentMapper.modelToDto(null);
+        commentMapper.dtoToModel(null);
+        ItemDto itemOwnerDto = new ItemDto();
+        itemOwnerMapper.dtoToModel(itemOwnerDto);
+        itemOwnerMapper.dtoToModel(null);
+        itemOwnerMapper.modelToDto(null);
     }
 }

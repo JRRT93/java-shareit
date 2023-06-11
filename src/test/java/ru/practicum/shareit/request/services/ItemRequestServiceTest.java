@@ -78,10 +78,23 @@ class ItemRequestServiceTest {
     }
 
     @Test
-    void findByIdShouldThrow() {
+    void findByIdShouldThrowByUser() {
+        Mockito
+                .when(userRepository.findById(99L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> itemRequestService.findById(1L, 99L));
+    }
+
+    @Test
+    void findByIdShouldThrowByItemRequest() {
+        Mockito
+                .when(userRepository.findById(1L))
+                .thenReturn(Optional.of(author));
         Mockito
                 .when(repository.findById(99L))
                 .thenReturn(Optional.empty());
+
         assertThrows(EntityNotFoundException.class, () -> itemRequestService.findById(99L, 1L));
     }
 
@@ -110,5 +123,7 @@ class ItemRequestServiceTest {
 
         ItemRequestDto foundedItem = itemRequestService.findById(1L, 1L);
         assertEquals(1L, foundedItem.getItems().size());
+        mapper.modelToDto(null);
+        mapper.dtoToModel(null);
     }
 }
