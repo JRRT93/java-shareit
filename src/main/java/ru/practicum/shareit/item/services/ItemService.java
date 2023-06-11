@@ -16,9 +16,9 @@ public interface ItemService {
 
     ItemOwnerDto findById(Long id, Long userId) throws EntityNotFoundException;
 
-    List<ItemOwnerDto> findAllMyItems(Long ownerId) throws EntityNotFoundException;
+    List<ItemOwnerDto> findAllMyItems(Long ownerId, Integer startingEntry, Integer size) throws EntityNotFoundException;
 
-    List<ItemDto> findByNameOrDescription(String text);
+    List<ItemDto> findByNameOrDescription(String text, Integer startingEntry, Integer size);
 
     CommentDto saveComment(Long bookerId, Long itemId, CommentDto commentDto) throws EntityNotFoundException,
             CommentWithoutCompletedBooking;

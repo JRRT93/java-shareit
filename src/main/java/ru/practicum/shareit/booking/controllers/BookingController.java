@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoComplete;
@@ -12,12 +13,15 @@ import ru.practicum.shareit.item.exceptions.WrongOwnerException;
 import ru.practicum.shareit.user.exceptions.EntityNotFoundException;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.Collection;
 
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class BookingController {
     private final BookingService bookingService;
     private final String xSharerUserId = "X-Sharer-User-Id";
@@ -48,8 +52,11 @@ public class BookingController {
 
     @GetMapping()
     public Collection<BookingDtoComplete> findAllUsersBookingsByState(@RequestHeader(xSharerUserId) Long bookerId,
-                                                                      @RequestParam(value = "state", defaultValue = "ALL")
-                                                                      String stateString)
+                                                                      @RequestParam(value = "state", defaultValue = "ALL") String stateString,
+                                                                      @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false)
+                                                                      Integer startingEntry,
+                                                                      @Positive @RequestParam(value = "size", defaultValue = "10", required = false)
+                                                                      Integer size)
             throws EntityNotFoundException, UnknownState {
         State state;
         try {
@@ -58,13 +65,16 @@ public class BookingController {
             throw new UnknownState("Unknown state: UNSUPPORTED_STATUS");
         }
         log.info(String.format("GET request for /bookings?state=%s", state));
-        return bookingService.findAllUsersBookingsByState(bookerId, state);
+        return bookingService.findAllUsersBookingsByState(bookerId, state, startingEntry, size);
     }
 
     @GetMapping("/owner")
     public Collection<BookingDtoComplete> findAllOwnersBookingsByState(@RequestHeader(xSharerUserId) Long ownerId,
-                                                                       @RequestParam(value = "state", defaultValue = "ALL")
-                                                                       String stateString)
+                                                                       @RequestParam(value = "state", defaultValue = "ALL") String stateString,
+                                                                       @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false)
+                                                                       Integer startingEntry,
+                                                                       @Positive @RequestParam(value = "size", defaultValue = "10", required = false)
+                                                                       Integer size)
             throws EntityNotFoundException, UnknownState {
         State state;
         try {
@@ -73,7 +83,6 @@ public class BookingController {
             throw new UnknownState("Unknown state: UNSUPPORTED_STATUS");
         }
         log.info(String.format("GET request for /bookings/owner?state=%s", state));
-        return bookingService.findAllOwnersBookingsByState(ownerId, state);
+        return bookingService.findAllOwnersBookingsByState(ownerId, state, startingEntry, size);
     }
-
 }

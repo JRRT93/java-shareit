@@ -18,6 +18,7 @@ public class ItemOwnerDto {
     private String description;
     @NotNull
     private Boolean available;
+    private Long requestId;
     private BookingDtoForItems lastBooking;
     private BookingDtoForItems nextBooking;
     private Collection<CommentDto> comments;
