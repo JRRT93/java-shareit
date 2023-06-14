@@ -80,8 +80,8 @@ class ItemRequestServiceTest {
     @Test
     void findByIdShouldThrowByUser() {
         Mockito
-                .when(userRepository.findById(99L))
-                .thenReturn(Optional.empty());
+                .when(userRepository.existsById(99L))
+                .thenReturn(false);
 
         assertThrows(EntityNotFoundException.class, () -> itemRequestService.findById(1L, 99L));
     }
@@ -112,8 +112,8 @@ class ItemRequestServiceTest {
         answers.add(savedItem);
 
         Mockito
-                .when(userRepository.findById(1L))
-                .thenReturn(Optional.ofNullable(author));
+                .when(userRepository.existsById(1L))
+                .thenReturn(true);
         Mockito
                 .when(repository.findById(1L))
                 .thenReturn(Optional.ofNullable(itemRequest));

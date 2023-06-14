@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingMapperForItems;
@@ -43,8 +42,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto save(Long ownerId, ItemDto itemDto) throws EntityNotFoundException {
-        User owner = userRepository.findById(ownerId).orElseThrow(
-                () -> new EntityNotFoundException(String.format("%s with id = %d does not exist in database", "User", ownerId)));
+        checkIsUserExistInDataBase(ownerId);
         Item item = itemMapper.dtoToModel(itemDto);
         item.setOwnerId(ownerId);
         itemRepository.save(item);
@@ -93,8 +91,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto update(Long ownerId, Long itemId, ItemDto itemDto) throws
             EntityNotFoundException, WrongOwnerException {
-        User owner = userRepository.findById(ownerId).orElseThrow(
-                () -> new EntityNotFoundException(String.format("%s with id = %d does not exist in database", "User", ownerId)));
+        checkIsUserExistInDataBase(ownerId);
         Item itemToUpdate = itemRepository.findById(itemId).orElseThrow(() ->
                 new EntityNotFoundException(String.format("%s with id = %d does not exist in database", "Item", itemId)));
 
@@ -144,21 +141,16 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemOwnerDto> findAllMyItems(Long ownerId, Integer startingEntry, Integer size) throws EntityNotFoundException {
-        userService.findById(ownerId);
+    public List<ItemOwnerDto> findAllMyItems(Long ownerId, Pageable pageRequest) throws EntityNotFoundException {
+        checkIsUserExistInDataBase(ownerId);
         LocalDateTime now = LocalDateTime.now();
         Collection<Booking> bookingList = bookingRepository.findAllByItemOwnerIdOrderByStartDesc(ownerId);
         List<ItemOwnerDto> itemOwnerDtoList;
-        if (startingEntry != null && size != null) {
-            Pageable pageRequest = PageRequest.of(startingEntry / size, size);
-            itemOwnerDtoList = itemRepository.findByOwnerIdOrderByIdAsc(ownerId, pageRequest).stream()
-                    .map(itemOwnerMapper::modelToDto)
-                    .collect(Collectors.toList());
-        } else {
-            itemOwnerDtoList = itemRepository.findByOwnerIdOrderByIdAsc(ownerId).stream()
-                    .map(itemOwnerMapper::modelToDto)
-                    .collect(Collectors.toList());
-        }
+
+        itemOwnerDtoList = itemRepository.findByOwnerIdOrderByIdAsc(ownerId, pageRequest).stream()
+                .map(itemOwnerMapper::modelToDto)
+                .collect(Collectors.toList());
+
         Collection<Comment> comments = commentRepository.findAllByItemOwnerIdOrderByIdAsc(ownerId);
         for (ItemOwnerDto item : itemOwnerDtoList) {
             Booking lastBooking = null;
@@ -192,25 +184,24 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> findByNameOrDescription(String text, Integer startingEntry, Integer size) {
+    public List<ItemDto> findByNameOrDescription(String text, Pageable pageRequest) {
         boolean isAvailable = true;
         if (text.isEmpty()) {
             return new ArrayList<>();
         }
         List<ItemDto> itemList;
-        if (startingEntry != null && size != null) {
-            Pageable pageRequest = PageRequest.of(startingEntry / size, size);
-            itemList = itemRepository.findByNameOrDescriptionContainsIgnoreCaseAndAvailable(text, text, isAvailable, pageRequest)
-                    .stream()
-                    .map(itemMapper::modelToDto)
-                    .collect(Collectors.toList());
-        } else {
-            itemList = itemRepository.findByNameOrDescriptionContainsIgnoreCaseAndAvailable(text, text, isAvailable)
-                    .stream()
-                    .map(itemMapper::modelToDto)
-                    .collect(Collectors.toList());
-        }
-
+        itemList = itemRepository.findByNameOrDescriptionContainsIgnoreCaseAndAvailable(text, text, isAvailable, pageRequest)
+                .stream()
+                .map(itemMapper::modelToDto)
+                .collect(Collectors.toList());
         return itemList;
+    }
+
+    private boolean checkIsUserExistInDataBase(Long userId) throws EntityNotFoundException {
+        if (!userRepository.existsById(userId)) {
+            throw new EntityNotFoundException(String.format("%s with id = %d does not exist in database",
+                    "User", userId));
+        }
+        return true;
     }
 }

@@ -6,6 +6,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.dto.BookingMapperForItems;
 import ru.practicum.shareit.booking.model.Booking;
@@ -86,8 +87,8 @@ class ItemServiceTest {
                 .when(itemRepository.save(any(Item.class)))
                 .thenReturn(item);
         Mockito
-                .when(userRepository.findById(1L))
-                .thenReturn(Optional.ofNullable(user));
+                .when(userRepository.existsById(1L))
+                .thenReturn(true);
 
         itemService.save(1L, itemDto);
 
@@ -124,8 +125,8 @@ class ItemServiceTest {
                 .when(itemRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.ofNullable(item));
         Mockito
-                .when(userRepository.findById(99L))
-                .thenReturn(Optional.of(notOwner));
+                .when(userRepository.existsById(99L))
+                .thenReturn(true);
 
         assertThrows(WrongOwnerException.class, () -> itemService.update(99L, 1L, itemDto));
     }
@@ -146,8 +147,8 @@ class ItemServiceTest {
         user.setId(2L);
 
         Mockito
-                .when(userRepository.findById(2L))
-                .thenReturn(Optional.ofNullable(user));
+                .when(userRepository.existsById(2L))
+                .thenReturn(true);
 
         Mockito
                 .when(itemRepository.findById(1L))
@@ -183,8 +184,8 @@ class ItemServiceTest {
         user.setId(2L);
 
         Mockito
-                .when(userRepository.findById(2L))
-                .thenReturn(Optional.ofNullable(user));
+                .when(userRepository.existsById(2L))
+                .thenReturn(true);
 
         Mockito
                 .when(itemRepository.findById(1L))
@@ -220,8 +221,8 @@ class ItemServiceTest {
         user.setId(2L);
 
         Mockito
-                .when(userRepository.findById(2L))
-                .thenReturn(Optional.ofNullable(user));
+                .when(userRepository.existsById(2L))
+                .thenReturn(true);
 
         Mockito
                 .when(itemRepository.findById(1L))
@@ -258,8 +259,8 @@ class ItemServiceTest {
         user.setId(2L);
 
         Mockito
-                .when(userRepository.findById(2L))
-                .thenReturn(Optional.ofNullable(user));
+                .when(userRepository.existsById(2L))
+                .thenReturn(true);
 
         Mockito
                 .when(itemRepository.findById(1L))
@@ -362,7 +363,7 @@ class ItemServiceTest {
 
     @Test
     void findByNameOrDescriptionEmptyString() {
-        assertEquals(0, itemService.findByNameOrDescription("", 1, 1).size());
+        assertEquals(0, itemService.findByNameOrDescription("", PageRequest.of(1, 1)).size());
     }
 
     @Test
@@ -375,10 +376,10 @@ class ItemServiceTest {
 
         Mockito
                 .when(itemRepository.findByNameOrDescriptionContainsIgnoreCaseAndAvailable(Mockito.anyString(),
-                        Mockito.anyString(), Mockito.anyBoolean()))
+                        Mockito.anyString(), Mockito.anyBoolean(), Mockito.any(Pageable.class)))
                 .thenReturn(items);
 
-        assertEquals(2, itemService.findByNameOrDescription("text", null, null).size());
+        assertEquals(2, itemService.findByNameOrDescription("text", Pageable.unpaged()).size());
     }
 
     @Test
@@ -393,7 +394,7 @@ class ItemServiceTest {
                         Mockito.anyString(), Mockito.anyBoolean(), any(Pageable.class)))
                 .thenReturn(items);
 
-        assertEquals(1, itemService.findByNameOrDescription("text", 0, 1).size());
+        assertEquals(1, itemService.findByNameOrDescription("text", Pageable.unpaged()).size());
     }
 
     @Test

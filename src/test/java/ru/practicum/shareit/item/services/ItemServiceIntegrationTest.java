@@ -5,6 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
@@ -47,7 +49,7 @@ class ItemServiceIntegrationTest {
 
     @Test
     void findAllMyItemsNoPagination() throws EntityNotFoundException {
-        List<ItemOwnerDto> itemList = itemService.findAllMyItems(1L, null, null);
+        List<ItemOwnerDto> itemList = itemService.findAllMyItems(1L, Pageable.unpaged());
         List<Long> itemsId = itemList.stream().map(ItemOwnerDto::getId).collect(Collectors.toList());
 
         assertEquals(3, itemList.size());
@@ -75,7 +77,7 @@ class ItemServiceIntegrationTest {
 
     @Test
     void findAllMyItemPagination() throws EntityNotFoundException {
-        List<ItemOwnerDto> itemList = itemService.findAllMyItems(1L, 1, 1);
+        List<ItemOwnerDto> itemList = itemService.findAllMyItems(1L, PageRequest.of(1, 1));
         List<Long> itemsId = itemList.stream().map(ItemOwnerDto::getId).collect(Collectors.toList());
 
         assertEquals(1, itemList.size());
@@ -91,7 +93,7 @@ class ItemServiceIntegrationTest {
 
     @Test
     void findByNameOrDescriptionNoPaginationNotLowerCase() {
-        List<ItemDto> itemList = itemService.findByNameOrDescription("Description", null, null);
+        List<ItemDto> itemList = itemService.findByNameOrDescription("Description", Pageable.unpaged());
         List<Long> itemsId = itemList.stream().map(ItemDto::getId).collect(Collectors.toList());
 
         assertEquals(3, itemList.size());
@@ -100,7 +102,7 @@ class ItemServiceIntegrationTest {
 
     @Test
     void findByNameOrDescriptionNoPaginationLowerCase() {
-        List<ItemDto> itemList = itemService.findByNameOrDescription("deScrIptiON", null, null);
+        List<ItemDto> itemList = itemService.findByNameOrDescription("deScrIptiON", Pageable.unpaged());
         List<Long> itemsId = itemList.stream().map(ItemDto::getId).collect(Collectors.toList());
 
         assertEquals(3, itemList.size());
@@ -109,7 +111,7 @@ class ItemServiceIntegrationTest {
 
     @Test
     void findByNameOrDescriptionPagination() throws EntityNotFoundException {
-        List<ItemOwnerDto> itemList = itemService.findAllMyItems(1L, 0, 2);
+        List<ItemOwnerDto> itemList = itemService.findAllMyItems(1L, PageRequest.of(0, 2));
         List<Long> itemsId = itemList.stream().map(ItemOwnerDto::getId).collect(Collectors.toList());
 
         assertEquals(2, itemList.size());

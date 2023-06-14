@@ -5,6 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
@@ -57,7 +59,7 @@ class ItemRequestServiceIntegrationTest {
     @Test
     void findTheirItemRequestShouldThrow() {
         assertThrows(EntityNotFoundException.class,
-                () -> itemRequestService.findTheirItemRequest(99L, null, null));
+                () -> itemRequestService.findTheirItemRequest(99L, Pageable.unpaged()));
     }
 
     @Test
@@ -78,7 +80,7 @@ class ItemRequestServiceIntegrationTest {
 
     @Test
     void findTheirItemRequestNoPagination() throws EntityNotFoundException {
-        List<ItemRequestDto> requests = new ArrayList<>(itemRequestService.findTheirItemRequest(3L, null, null));
+        List<ItemRequestDto> requests = new ArrayList<>(itemRequestService.findTheirItemRequest(3L, Pageable.unpaged()));
         List<Long> requestsId = requests.stream().map(ItemRequestDto::getId).collect(Collectors.toList());
 
         assertEquals(1, requests.size());
@@ -94,7 +96,8 @@ class ItemRequestServiceIntegrationTest {
 
     @Test
     void findTheirItemRequestPagination() throws EntityNotFoundException {
-        List<ItemRequestDto> requests = new ArrayList<>(itemRequestService.findTheirItemRequest(2L, 0, 2));
+        List<ItemRequestDto> requests = new ArrayList<>(itemRequestService.findTheirItemRequest(2L,
+                PageRequest.of(0, 2)));
         List<Long> requestsId = requests.stream().map(ItemRequestDto::getId).collect(Collectors.toList());
 
         assertEquals(2, requests.size());

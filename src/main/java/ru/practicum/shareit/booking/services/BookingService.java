@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.services;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoComplete;
@@ -22,9 +23,9 @@ public interface BookingService {
 
     BookingDtoComplete findById(Long userId, Long bookingId) throws EntityNotFoundException, WrongOwnerException;
 
-    Collection<BookingDtoComplete> findAllUsersBookingsByState(Long bookerId, State state, Integer startingEntry, Integer size)
+    Collection<BookingDtoComplete> findAllUsersBookingsByState(Long bookerId, State state, Pageable pageable)
             throws EntityNotFoundException;
 
-    Collection<BookingDtoComplete> findAllOwnersBookingsByState(Long ownerId, State state, Integer startingEntry, Integer size)
+    Collection<BookingDtoComplete> findAllOwnersBookingsByState(Long ownerId, State state, Pageable pageable)
             throws EntityNotFoundException;
 }

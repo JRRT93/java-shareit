@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -104,7 +106,7 @@ class ItemRequestControllerTest {
         responseDto2.setDescription("Test Request 2");
         List<ItemRequestDto> responseList = Arrays.asList(responseDto1, responseDto2);
 
-        when(itemRequestService.findTheirItemRequest(anyLong(), anyInt(), anyInt())).thenReturn(responseList);
+        when(itemRequestService.findTheirItemRequest(anyLong(), any(Pageable.class))).thenReturn(responseList);
 
         mockMvc.perform(get("/requests/all")
                         .header("X-Sharer-User-Id", 1L)
@@ -117,7 +119,7 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$[1].id", is(2)))
                 .andExpect(jsonPath("$[1].description", is("Test Request 2")));
 
-        verify(itemRequestService).findTheirItemRequest(1L, 0, 10);
+        verify(itemRequestService).findTheirItemRequest(1L, PageRequest.of(0, 10));
     }
 
     private static String asJsonString(Object obj) throws JsonProcessingException {

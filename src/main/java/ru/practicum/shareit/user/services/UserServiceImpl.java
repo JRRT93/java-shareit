@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
     public UserDto findById(Long id) throws EntityNotFoundException {
         User user = userRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(String.format("%s with id = %d does not exist in database", "User", id)));
-        log.debug(String.format("User with id = %d founded", user.getId()));
+        log.debug(String.format("User with id = %d founded", id));
         return userMapper.modelToDto(user);
     }
 
@@ -62,9 +62,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteById(Long id) throws EntityNotFoundException {
-        findById(id);
-        userRepository.deleteById(id);
-        log.debug(String.format("User with id = %d deleted", id));
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+            log.debug(String.format("User with id = %d deleted", id));
+        } else {
+            throw new EntityNotFoundException(String.format("%s with id = %d does not exist in database", "User", id));
+        }
     }
 
     @Override

@@ -11,12 +11,8 @@ import java.util.List;
 public interface ItemJpaRepository extends JpaRepository<Item, Long> {
     List<Item> findByOwnerIdOrderByIdAsc(Long ownerId, Pageable pageRequest);
 
-    List<Item> findByOwnerIdOrderByIdAsc(Long ownerId);
-
-    List<Item> findByNameOrDescriptionContainsIgnoreCaseAndAvailable(String keyWord, String keyWord2, boolean isAvailable);
-
-    List<Item> findByNameOrDescriptionContainsIgnoreCaseAndAvailable(String keyWord, String keyWord2, boolean isAvailable,
-                                                                     Pageable pageRequest);
+    List<Item> findByNameOrDescriptionContainsIgnoreCaseAndAvailable(String keyWordForName, String keyWordForDescription,
+                                                                     boolean isAvailable, Pageable pageRequest);
 
     List<Item> findByRequestIdOrderByIdAsc(Long requestId);
 

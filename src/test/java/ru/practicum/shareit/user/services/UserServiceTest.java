@@ -191,16 +191,17 @@ class UserServiceTest {
     @Test
     void deleteByIdShouldThrow() {
         Mockito
-                .when(userJpaRepository.findById(99L))
-                .thenReturn(Optional.empty());
+                .when(userJpaRepository.existsById(1L))
+                .thenReturn(false);
+
         assertThrows(EntityNotFoundException.class, () -> userService.deleteById(99L));
     }
 
     @Test
     void deleteById() throws EntityNotFoundException {
         Mockito
-                .when(userJpaRepository.findById(1L))
-                .thenReturn(Optional.ofNullable(user));
+                .when(userJpaRepository.existsById(1L))
+                .thenReturn(true);
 
         userService.deleteById(1L);
 

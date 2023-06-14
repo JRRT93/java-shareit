@@ -2,6 +2,8 @@ package ru.practicum.shareit.request.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -50,7 +52,13 @@ public class ItemRequestController {
                                                          @Positive @RequestParam(value = "size", defaultValue = "10", required = false)
                                                          Integer size)
             throws EntityNotFoundException {
+        Pageable pageable;
+        if (size != null && startingEntry != null) {
+            pageable = PageRequest.of(startingEntry / size, size);
+        } else {
+            pageable = Pageable.unpaged();
+        }
         log.info("GET request for /requests/all received");
-        return itemRequestService.findTheirItemRequest(authorId, startingEntry, size);
+        return itemRequestService.findTheirItemRequest(authorId, pageable);
     }
 }

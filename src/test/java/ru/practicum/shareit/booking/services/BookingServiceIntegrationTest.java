@@ -5,6 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDtoComplete;
@@ -28,8 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
 @SpringBootTest(
@@ -54,7 +55,7 @@ class BookingServiceIntegrationTest {
     @Test
     void pastFindAllUsersBookingsByNoPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllUsersBookingsByState(2L, State.PAST, null, null));
+                bookingService.findAllUsersBookingsByState(2L, State.PAST, Pageable.unpaged()));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(1, bookings.size());
@@ -71,7 +72,7 @@ class BookingServiceIntegrationTest {
     @Test
     void currentFindAllUsersBookingsByNoPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllUsersBookingsByState(3L, State.CURRENT, null, null));
+                bookingService.findAllUsersBookingsByState(3L, State.CURRENT, Pageable.unpaged()));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(1, bookings.size());
@@ -88,7 +89,7 @@ class BookingServiceIntegrationTest {
     @Test
     void futureFindAllUsersBookingsByNoPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllUsersBookingsByState(3L, State.FUTURE, null, null));
+                bookingService.findAllUsersBookingsByState(3L, State.FUTURE, Pageable.unpaged()));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(2, bookings.size());
@@ -113,7 +114,7 @@ class BookingServiceIntegrationTest {
     @Test
     void waitingFindAllUsersBookingsByNoPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllUsersBookingsByState(2L, State.WAITING, null, null));
+                bookingService.findAllUsersBookingsByState(2L, State.WAITING, Pageable.unpaged()));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(1, bookings.size());
@@ -130,7 +131,7 @@ class BookingServiceIntegrationTest {
     @Test
     void rejectedFindAllUsersBookingsByNoPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllUsersBookingsByState(2L, State.REJECTED, null, null));
+                bookingService.findAllUsersBookingsByState(2L, State.REJECTED, Pageable.unpaged()));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(1, bookings.size());
@@ -147,7 +148,7 @@ class BookingServiceIntegrationTest {
     @Test
     void allFindAllUsersBookingsByNoPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllUsersBookingsByState(2L, State.ALL, null, null));
+                bookingService.findAllUsersBookingsByState(2L, State.ALL, Pageable.unpaged()));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(3, bookings.size());
@@ -180,7 +181,7 @@ class BookingServiceIntegrationTest {
     @Test
     void pastFindAllUsersBookingsByPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllUsersBookingsByState(2L, State.PAST, 0, 1));
+                bookingService.findAllUsersBookingsByState(2L, State.PAST, PageRequest.of(0, 1)));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(1, bookings.size());
@@ -197,7 +198,7 @@ class BookingServiceIntegrationTest {
     @Test
     void currentFindAllUsersBookingsByPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllUsersBookingsByState(3L, State.CURRENT, 0, 1));
+                bookingService.findAllUsersBookingsByState(3L, State.CURRENT, PageRequest.of(0, 1)));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(1, bookings.size());
@@ -214,7 +215,7 @@ class BookingServiceIntegrationTest {
     @Test
     void futureFindAllUsersBookingsByPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllUsersBookingsByState(3L, State.FUTURE, 1, 1));
+                bookingService.findAllUsersBookingsByState(3L, State.FUTURE, PageRequest.of(1, 1)));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(1, bookings.size());
@@ -231,7 +232,7 @@ class BookingServiceIntegrationTest {
     @Test
     void waitingFindAllUsersBookingsByPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllUsersBookingsByState(2L, State.WAITING, 0, 1));
+                bookingService.findAllUsersBookingsByState(2L, State.WAITING, PageRequest.of(0, 1)));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(1, bookings.size());
@@ -248,7 +249,7 @@ class BookingServiceIntegrationTest {
     @Test
     void rejectedFindAllUsersBookingsByPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllUsersBookingsByState(2L, State.REJECTED, 0, 1));
+                bookingService.findAllUsersBookingsByState(2L, State.REJECTED, PageRequest.of(0, 1)));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(1, bookings.size());
@@ -265,7 +266,7 @@ class BookingServiceIntegrationTest {
     @Test
     void allFindAllUsersBookingsByPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllUsersBookingsByState(2L, State.ALL, 0, 2));
+                bookingService.findAllUsersBookingsByState(2L, State.ALL, PageRequest.of(0, 2)));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(2, bookings.size());
@@ -290,7 +291,7 @@ class BookingServiceIntegrationTest {
     @Test
     void pastFindAllOwnersBookingsByNoPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllOwnersBookingsByState(1L, State.PAST, null, null));
+                bookingService.findAllOwnersBookingsByState(1L, State.PAST, Pageable.unpaged()));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(1, bookings.size());
@@ -307,7 +308,7 @@ class BookingServiceIntegrationTest {
     @Test
     void currentFindAllOwnersBookingsByNoPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllOwnersBookingsByState(1L, State.CURRENT, null, null));
+                bookingService.findAllOwnersBookingsByState(1L, State.CURRENT, Pageable.unpaged()));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(1, bookings.size());
@@ -324,7 +325,7 @@ class BookingServiceIntegrationTest {
     @Test
     void futureFindAllOwnersBookingsByNoPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllOwnersBookingsByState(1L, State.FUTURE, null, null));
+                bookingService.findAllOwnersBookingsByState(1L, State.FUTURE, Pageable.unpaged()));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(3, bookings.size());
@@ -357,7 +358,7 @@ class BookingServiceIntegrationTest {
     @Test
     void waitingFindAllOwnersBookingsByNoPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllOwnersBookingsByState(1L, State.WAITING, null, null));
+                bookingService.findAllOwnersBookingsByState(1L, State.WAITING, Pageable.unpaged()));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(2, bookings.size());
@@ -382,7 +383,7 @@ class BookingServiceIntegrationTest {
     @Test
     void rejectedFindAllOwnersBookingsByNoPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllOwnersBookingsByState(1L, State.REJECTED, null, null));
+                bookingService.findAllOwnersBookingsByState(1L, State.REJECTED, Pageable.unpaged()));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(1, bookings.size());
@@ -399,7 +400,7 @@ class BookingServiceIntegrationTest {
     @Test
     void allFindAllOwnersBookingsByNoPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllOwnersBookingsByState(1L, State.ALL, null, null));
+                bookingService.findAllOwnersBookingsByState(1L, State.ALL, Pageable.unpaged()));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(6, bookings.size());
@@ -456,7 +457,7 @@ class BookingServiceIntegrationTest {
     @Test
     void pastFindAllOwnersBookingsByPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllOwnersBookingsByState(1L, State.PAST, 0, 1));
+                bookingService.findAllOwnersBookingsByState(1L, State.PAST, PageRequest.of(0, 1)));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(1, bookings.size());
@@ -473,7 +474,7 @@ class BookingServiceIntegrationTest {
     @Test
     void currentFindAllOwnersBookingsByPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllOwnersBookingsByState(1L, State.CURRENT, 0, 1));
+                bookingService.findAllOwnersBookingsByState(1L, State.CURRENT, PageRequest.of(0, 1)));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(1, bookings.size());
@@ -490,7 +491,7 @@ class BookingServiceIntegrationTest {
     @Test
     void futureFindAllOwnersBookingsByPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllOwnersBookingsByState(1L, State.FUTURE, 0, 3));
+                bookingService.findAllOwnersBookingsByState(1L, State.FUTURE, PageRequest.of(0, 3)));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(3, bookings.size());
@@ -523,7 +524,7 @@ class BookingServiceIntegrationTest {
     @Test
     void waitingFindAllOwnersBookingsByPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllOwnersBookingsByState(1L, State.WAITING, 0, 2));
+                bookingService.findAllOwnersBookingsByState(1L, State.WAITING, PageRequest.of(0, 2)));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(2, bookings.size());
@@ -548,7 +549,7 @@ class BookingServiceIntegrationTest {
     @Test
     void rejectedFindAllOwnersBookingsByPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllOwnersBookingsByState(1L, State.REJECTED, 0, 1));
+                bookingService.findAllOwnersBookingsByState(1L, State.REJECTED, PageRequest.of(0, 1)));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(1, bookings.size());
@@ -565,7 +566,7 @@ class BookingServiceIntegrationTest {
     @Test
     void allFindAllOwnersBookingsByPagination() throws EntityNotFoundException {
         List<BookingDtoComplete> bookings = new ArrayList<>(
-                bookingService.findAllOwnersBookingsByState(1L, State.ALL, 6, 5));
+                bookingService.findAllOwnersBookingsByState(1L, State.ALL, PageRequest.of(1, 5)));
         List<Long> bookingsId = bookings.stream().map(BookingDtoComplete::getId).collect(Collectors.toList());
 
         assertEquals(1, bookings.size());
@@ -577,6 +578,12 @@ class BookingServiceIntegrationTest {
                 bookings.get(0).getEnd());
         assertEquals(1L, bookings.get(0).getItem().getId());
         assertEquals(Status.APPROVED, bookings.get(0).getStatus());
+    }
+
+    @Test
+    void findAllUsersBookingsByPaginationShouldThrow() {
+        assertThrows(EntityNotFoundException.class, () -> bookingService.findAllUsersBookingsByState(99L,
+                State.WAITING, Pageable.unpaged()));
     }
 
     @BeforeEach

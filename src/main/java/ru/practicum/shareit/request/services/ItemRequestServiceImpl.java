@@ -2,7 +2,6 @@ package ru.practicum.shareit.request.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -47,8 +46,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public ItemRequestDto findById(Long requestId, Long askerId) throws EntityNotFoundException {
-        userRepository.findById(askerId).orElseThrow(
-                () -> new EntityNotFoundException(String.format("%s with id = %d does not exist in database", "User", askerId)));
+        checkIsUserExistInDataBase(askerId);
         ItemRequest itemRequest = repository.findById(requestId).orElseThrow(
                 () -> new EntityNotFoundException(String.format("%s with id = %d does not exist in database", "ItemRequest",
                         requestId)));
@@ -62,8 +60,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public Collection<ItemRequestDto> findMyItemRequests(Long authorId) throws EntityNotFoundException {
-        userRepository.findById(authorId).orElseThrow(
-                () -> new EntityNotFoundException(String.format("%s with id = %d does not exist in database", "User", authorId)));
+        checkIsUserExistInDataBase(authorId);
         Collection<ItemRequestDto> myItemRequests = repository.findByAuthorIdOrderByCreatedDesc(authorId).stream()
                 .map(mapper::modelToDto)
                 .collect(Collectors.toList());
@@ -71,23 +68,16 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public Collection<ItemRequestDto> findTheirItemRequest(Long authorId, Integer startingEntry, Integer size)
+    public Collection<ItemRequestDto> findTheirItemRequest(Long authorId, Pageable pageRequest)
             throws EntityNotFoundException {
-        userRepository.findById(authorId).orElseThrow(
-                () -> new EntityNotFoundException(String.format("%s with id = %d does not exist in database", "User", authorId)));
+        checkIsUserExistInDataBase(authorId);
         Collection<ItemRequestDto> itemRequests;
-        if (startingEntry != null && size != null) {
-            Pageable pageRequest = PageRequest.of(startingEntry / size, size);
-            itemRequests = repository.findByAuthorIdNotOrderByCreatedDesc(authorId, pageRequest)
-                    .stream()
-                    .map(mapper::modelToDto)
-                    .collect(Collectors.toList());
-        } else {
-            itemRequests = repository.findByAuthorIdNotOrderByCreatedDesc(authorId)
-                    .stream()
-                    .map(mapper::modelToDto)
-                    .collect(Collectors.toList());
-        }
+
+        itemRequests = repository.findByAuthorIdNotOrderByCreatedDesc(authorId, pageRequest)
+                .stream()
+                .map(mapper::modelToDto)
+                .collect(Collectors.toList());
+
         return findAndSetAnswers(itemRequests);
     }
 
@@ -108,5 +98,13 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             itemRequestDto.setItems(requestAnswersList);
         }
         return itemRequests;
+    }
+
+    private boolean checkIsUserExistInDataBase(Long userId) throws EntityNotFoundException {
+        if (!userRepository.existsById(userId)) {
+            throw new EntityNotFoundException(String.format("%s with id = %d does not exist in database",
+                    "User", userId));
+        }
+        return true;
     }
 }

@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.services;
 
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemOwnerDto;
@@ -16,9 +17,9 @@ public interface ItemService {
 
     ItemOwnerDto findById(Long id, Long userId) throws EntityNotFoundException;
 
-    List<ItemOwnerDto> findAllMyItems(Long ownerId, Integer startingEntry, Integer size) throws EntityNotFoundException;
+    List<ItemOwnerDto> findAllMyItems(Long ownerId, Pageable pageable) throws EntityNotFoundException;
 
-    List<ItemDto> findByNameOrDescription(String text, Integer startingEntry, Integer size);
+    List<ItemDto> findByNameOrDescription(String text, Pageable pageable);
 
     CommentDto saveComment(Long bookerId, Long itemId, CommentDto commentDto) throws EntityNotFoundException,
             CommentWithoutCompletedBooking;

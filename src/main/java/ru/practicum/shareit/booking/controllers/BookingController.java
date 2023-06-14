@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -64,8 +66,14 @@ public class BookingController {
         } catch (Exception e) {
             throw new UnknownState("Unknown state: UNSUPPORTED_STATUS");
         }
+        Pageable pageable;
+        if (size != null && startingEntry != null) {
+            pageable = PageRequest.of(startingEntry / size, size);
+        } else {
+            pageable = Pageable.unpaged();
+        }
         log.info(String.format("GET request for /bookings?state=%s", state));
-        return bookingService.findAllUsersBookingsByState(bookerId, state, startingEntry, size);
+        return bookingService.findAllUsersBookingsByState(bookerId, state, pageable);
     }
 
     @GetMapping("/owner")
@@ -82,7 +90,13 @@ public class BookingController {
         } catch (Exception e) {
             throw new UnknownState("Unknown state: UNSUPPORTED_STATUS");
         }
+        Pageable pageable;
+        if (size != null && startingEntry != null) {
+            pageable = PageRequest.of(startingEntry / size, size);
+        } else {
+            pageable = Pageable.unpaged();
+        }
         log.info(String.format("GET request for /bookings/owner?state=%s", state));
-        return bookingService.findAllOwnersBookingsByState(ownerId, state, startingEntry, size);
+        return bookingService.findAllOwnersBookingsByState(ownerId, state, pageable);
     }
 }

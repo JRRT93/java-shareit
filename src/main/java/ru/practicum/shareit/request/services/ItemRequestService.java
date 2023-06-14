@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request.services;
 
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.exceptions.EntityNotFoundException;
 
@@ -12,6 +13,6 @@ public interface ItemRequestService {
 
     Collection<ItemRequestDto> findMyItemRequests(Long authorId) throws EntityNotFoundException;
 
-    Collection<ItemRequestDto> findTheirItemRequest(Long authorId, Integer startingEntry, Integer size)
+    Collection<ItemRequestDto> findTheirItemRequest(Long authorId, Pageable pageable)
             throws EntityNotFoundException;
 }

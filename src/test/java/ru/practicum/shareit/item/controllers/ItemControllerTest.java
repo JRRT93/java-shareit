@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -118,7 +120,7 @@ class ItemControllerTest {
         expectedResult.add(item1);
         expectedResult.add(item2);
 
-        when(itemService.findAllMyItems(anyLong(), anyInt(), anyInt())).thenReturn(expectedResult);
+        when(itemService.findAllMyItems(anyLong(), any(Pageable.class))).thenReturn(expectedResult);
 
         mockMvc.perform(get("/items")
                         .header("X-Sharer-User-Id", 1L))
@@ -128,7 +130,7 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$[1].id", is(2)))
                 .andExpect(jsonPath("$[1].name", is("Item 2")));
 
-        verify(itemService).findAllMyItems(1L, 0, 10);
+        verify(itemService).findAllMyItems(1L, PageRequest.of(0, 10));
     }
 
     @Test
@@ -143,7 +145,7 @@ class ItemControllerTest {
         expectedResult.add(item1);
         expectedResult.add(item2);
 
-        when(itemService.findByNameOrDescription(anyString(), anyInt(), anyInt())).thenReturn(expectedResult);
+        when(itemService.findByNameOrDescription(anyString(), any(Pageable.class))).thenReturn(expectedResult);
 
         mockMvc.perform(get("/items/search")
                         .param("text", "keyword")
@@ -155,7 +157,7 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$[1].id", is(2)))
                 .andExpect(jsonPath("$[1].name", is("Item 2")));
 
-        verify(itemService).findByNameOrDescription("keyword", 0, 10);
+        verify(itemService).findByNameOrDescription("keyword", PageRequest.of(0, 10));
     }
 
     @Test

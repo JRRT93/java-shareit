@@ -2,6 +2,8 @@ package ru.practicum.shareit.item.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -54,8 +56,14 @@ public class ItemController {
                                                @Positive @RequestParam(value = "size", defaultValue = "10", required = false)
                                                Integer size)
             throws EntityNotFoundException {
+        Pageable pageable;
+        if (size != null && startingEntry != null) {
+            pageable = PageRequest.of(startingEntry / size, size);
+        } else {
+            pageable = Pageable.unpaged();
+        }
         log.info(String.format("GET request for /items received from user id = %d", ownerId));
-        return itemService.findAllMyItems(ownerId, startingEntry, size);
+        return itemService.findAllMyItems(ownerId, pageable);
     }
 
     @GetMapping("/search")
@@ -64,8 +72,14 @@ public class ItemController {
                                                  Integer startingEntry,
                                                  @Positive @RequestParam(value = "size", defaultValue = "10", required = false)
                                                  Integer size) {
+        Pageable pageable;
+        if (size != null && startingEntry != null) {
+            pageable = PageRequest.of(startingEntry / size, size);
+        } else {
+            pageable = Pageable.unpaged();
+        }
         log.info(String.format("GET request for /items received, text for search = %s", text));
-        return itemService.findByNameOrDescription(text.toLowerCase(), startingEntry, size);
+        return itemService.findByNameOrDescription(text.toLowerCase(), pageable);
     }
 
     @PostMapping("/{itemId}/comment")

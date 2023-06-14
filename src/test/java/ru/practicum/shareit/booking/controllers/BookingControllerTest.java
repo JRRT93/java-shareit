@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -203,7 +204,7 @@ class BookingControllerTest {
         bookingDtoCompleteList.add(bookingDtoComplete1);
         bookingDtoCompleteList.add(bookingDtoComplete2);
 
-        when(bookingService.findAllUsersBookingsByState(anyLong(), any(State.class), anyInt(), anyInt())).thenReturn(bookingDtoCompleteList);
+        when(bookingService.findAllUsersBookingsByState(anyLong(), any(State.class), any(Pageable.class))).thenReturn(bookingDtoCompleteList);
 
         mockMvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", 1L)
@@ -218,7 +219,7 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$[1].start", is("3000-01-01T01:01:01")))
                 .andExpect(jsonPath("$[1].end", is("3001-01-01T01:01:01")));
 
-        verify(bookingService, times(1)).findAllUsersBookingsByState(anyLong(), any(State.class), anyInt(), anyInt());
+        verify(bookingService, times(1)).findAllUsersBookingsByState(anyLong(), any(State.class), any(Pageable.class));
     }
 
     @Test
@@ -248,9 +249,9 @@ class BookingControllerTest {
         bookingDtoCompleteList.add(bookingDtoComplete1);
         bookingDtoCompleteList.add(bookingDtoComplete2);
 
-        when(bookingService.findAllUsersBookingsByState(anyLong(), any(State.class), anyInt(), anyInt())).thenReturn(bookingDtoCompleteList);
+        when(bookingService.findAllOwnersBookingsByState(anyLong(), any(State.class), any(Pageable.class))).thenReturn(bookingDtoCompleteList);
 
-        mockMvc.perform(get("/bookings")
+        mockMvc.perform(get("/bookings/owner")
                         .header("X-Sharer-User-Id", 1L)
                         .param("state", "FUTURE")
                         .param("from", "0")
@@ -263,12 +264,12 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$[1].start", is("3000-01-01T01:01:01")))
                 .andExpect(jsonPath("$[1].end", is("3001-01-01T01:01:01")));
 
-        verify(bookingService, times(1)).findAllUsersBookingsByState(anyLong(), any(State.class), anyInt(), anyInt());
+        verify(bookingService, times(1)).findAllOwnersBookingsByState(anyLong(), any(State.class), any(Pageable.class));
     }
 
     @Test
     public void testFindAllOwnersBookingsByStateShouldThrow() throws Exception {
-        mockMvc.perform(get("/bookings")
+        mockMvc.perform(get("/bookings/owner")
                         .header("X-Sharer-User-Id", 1L)
                         .param("state", "UNSUPPORTED_STATE")
                         .param("from", "0")
