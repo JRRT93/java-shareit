@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoComplete;
@@ -105,65 +106,72 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    public Collection<BookingDtoComplete> findAllUsersBookingsByState(Long bookerId, State state)
+    public Collection<BookingDtoComplete> findAllUsersBookingsByState(Long bookerId, State state, Pageable pageRequest)
             throws EntityNotFoundException {
-        User booker = userRepository.findById(bookerId).orElseThrow(
-                () -> new EntityNotFoundException(String.format("%s with id = %d does not exist in database",
-                        "User", bookerId)));
+        checkIsUserExistInDataBase(bookerId);
         LocalDateTime now = LocalDateTime.now();
+
         switch (state) {
             case PAST:
-                return bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId, now)
+                return bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId, now, pageRequest)
                         .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
             case CURRENT:
-                return bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId, now, now)
+                return bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId, now,
+                                now, pageRequest)
                         .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
             case FUTURE:
                 return bookingRepository.findAllByBookerIdAndStartAfterAndStatusNotOrderByStartDesc(bookerId, now,
-                                Status.REJECTED)
+                                Status.REJECTED, pageRequest)
                         .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
             case WAITING:
-                return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, Status.WAITING)
+                return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, Status.WAITING,
+                                pageRequest)
                         .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
             case REJECTED:
-                return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, Status.REJECTED)
+                return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, Status.REJECTED,
+                                pageRequest)
                         .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
             case ALL:
-                return bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId)
+                return bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId, pageRequest)
                         .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
             default:
                 return null;
+
         }
+
     }
 
-    public Collection<BookingDtoComplete> findAllOwnersBookingsByState(Long ownerId, State state)
+    public Collection<BookingDtoComplete> findAllOwnersBookingsByState(Long ownerId, State state, Pageable pageRequest)
             throws EntityNotFoundException {
-        User owner = userRepository.findById(ownerId).orElseThrow(
-                () -> new EntityNotFoundException(String.format("%s with id = %d does not exist in database", "User",
-                        ownerId)));
+        checkIsUserExistInDataBase(ownerId);
         LocalDateTime now = LocalDateTime.now();
+
         switch (state) {
             case PAST:
-                return bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, now)
+                return bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, now, pageRequest)
                         .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
             case CURRENT:
-                return bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId, now, now)
+                return bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId,
+                                now, now, pageRequest)
                         .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
             case FUTURE:
-                return bookingRepository.findAllByItemOwnerIdAndStartAfterAndStatusNotOrderByStartDesc(ownerId, now,
-                                Status.REJECTED)
+                return bookingRepository.findAllByItemOwnerIdAndStartAfterAndStatusNotOrderByStartDesc(ownerId,
+                                now, Status.REJECTED, pageRequest)
                         .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
             case WAITING:
-                return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, Status.WAITING)
+                return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, Status.WAITING,
+                                pageRequest)
                         .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
             case REJECTED:
-                return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, Status.REJECTED)
+                return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, Status.REJECTED,
+                                pageRequest)
                         .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
             case ALL:
-                return bookingRepository.findAllByItemOwnerIdOrderByStartDesc(ownerId)
+                return bookingRepository.findAllByItemOwnerIdOrderByStartDesc(ownerId, pageRequest)
                         .stream().map(bookingMapperComplete::modelToDto).collect(Collectors.toList());
             default:
                 return null;
+
         }
     }
 
@@ -174,5 +182,13 @@ public class BookingServiceImpl implements BookingService {
         if (end.isBefore(start) || end.isBefore(now) || end.equals(start) || start.isBefore(now)) {
             throw new IncorrectBookingStartEndDate("Check dates, please");
         }
+    }
+
+    private boolean checkIsUserExistInDataBase(Long userId) throws EntityNotFoundException {
+        if (!userRepository.existsById(userId)) {
+            throw new EntityNotFoundException(String.format("%s with id = %d does not exist in database",
+                    "User", userId));
+        }
+        return true;
     }
 }
