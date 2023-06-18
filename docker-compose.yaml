@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+
+  db:
+    image: postgres
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: GymBoss
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ShareIt
+    ports:
+      - "5432:5432"
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: server
+    container_name: server
+    depends_on:
+      - db
+    environment:
+      DB_NAME: ShareIt
+      POSTGRES_USER: GymBoss
+      POSTGRES_PASSWORD: password
+      DB_HOST: postgres-db
+      DB_PORT: 5432
+    ports:
+      - "9090:9090"
+
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    image: gateway
+    container_name: gateway
+    depends_on:
+      - server
+    ports:
+      - "8080:8080"
+    environment:
+      - SHAREIT_SERVER_URL=http://server:9090
